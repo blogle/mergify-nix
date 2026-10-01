@@ -42,6 +42,8 @@
             overlays = [ rust-overlay.overlays.default ];
           };
 
+          mergifyRev = mergify-cli.rev;
+
           rustToolchain =
             pkgs.rust-bin.fromRustupToolchainFile
               (mergify-cli + "/rust-toolchain.toml");
@@ -53,7 +55,7 @@
 
           mergify = rustPlatform.buildRustPackage {
             pname = "mergify-cli";
-            version = "unstable";
+            version = "unstable-${builtins.substring 0 7 mergifyRev}";
 
             src = mergify-cli;
 
@@ -80,90 +82,20 @@
 
           installSkills = pkgs.writeShellApplication {
             name = "install-mergify-skills";
-
-            runtimeInputs = with pkgs; [
-              coreutils
-              curl
-              findutils
-              git
-              gnugrep
-              gnutar
-              gzip
+            runtimeInputs = [
+              pkgs.git
+              pkgs.nodejs
             ];
 
             text = ''
-              set -euo pipefail
+              root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+              cd "$root"
 
-              if [[ -n "''${MERGIFY_SKILLS_DIR:-}" ]]; then
-                destination="$MERGIFY_SKILLS_DIR"
-              elif project_root="$(git rev-parse --show-toplevel 2>/dev/null)"; then
-                destination="$project_root/.agent/skills"
-              else
-                destination="$PWD/.agent/skills"
-              fi
-
-              mkdir -p "$destination"
-
-              tmp="$(mktemp -d)"
-              trap 'rm -rf "$tmp"' EXIT
-
-              archive="$tmp/mergify-cli.tar.gz"
-
-              # Deliberately fetch main at hook execution time rather than using
-              # the flake-locked source so downstream projects always receive
-              # the latest published Mergify skills.
-              curl \
-                --fail \
-                --silent \
-                --show-error \
-                --location \
-                --retry 3 \
-                --output "$archive" \
-                "https://codeload.github.com/Mergifyio/mergify-cli/tar.gz/refs/heads/main"
-
-              tar -xzf "$archive" -C "$tmp"
-
-              source_root="$(find "$tmp" -mindepth 1 -maxdepth 1 -type d -print -quit)"
-              source_skills="$source_root/skills"
-
-              if [[ ! -d "$source_skills" ]]; then
-                echo "Mergify skills directory not found in upstream archive" >&2
-                exit 1
-              fi
-
-              manifest="$destination/.mergify-cli-managed"
-              next_manifest="$tmp/managed-skills"
-
-              # Remove only skills previously managed by this hook. This keeps
-              # project-local and other third-party skills untouched.
-              if [[ -f "$manifest" ]]; then
-                while IFS= read -r skill_name; do
-                  [[ -n "$skill_name" ]] || continue
-                  if [[ "$skill_name" =~ ^[A-Za-z0-9._-]+$ ]]; then
-                    rm -rf "$destination/$skill_name"
-                  fi
-                done < "$manifest"
-              fi
-
-              : > "$next_manifest"
-
-              while IFS= read -r -d "" skill_dir; do
-                skill_name="$(basename "$skill_dir")"
-                rm -rf "$destination/$skill_name"
-                cp -a "$skill_dir" "$destination/$skill_name"
-                printf '%s\n' "$skill_name" >> "$next_manifest"
-              done < <(
-                find "$source_skills" \
-                  -mindepth 1 \
-                  -maxdepth 1 \
-                  -type d \
-                  -print0
-              )
-
-              sort -o "$next_manifest" "$next_manifest"
-              cp "$next_manifest" "$manifest"
-
-              echo "Updated Mergify skills in $destination"
+              npx --yes skills add \
+                "Mergifyio/mergify-cli#${mergifyRev}" \
+                --skill '*' \
+                --agent universal \
+                --yes
             '';
           };
         in
