@@ -10,7 +10,7 @@
     };
 
     mergify-cli = {
-      url = "github:Mergifyio/mergify-cli";
+      url = "github:Mergifyio/mergify-cli/main?rev=aef6ef21b924bcd88c40828b80f409e6c3a9e028";
       flake = false;
     };
   };
