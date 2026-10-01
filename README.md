@@ -1,8 +1,10 @@
 # mergify-nix
 
-A small Nix flake that packages [Mergify CLI](https://github.com/Mergifyio/mergify-cli) and exposes an `installSkills` hook for keeping Mergify's upstream agent skills current in downstream projects.
+A small Nix flake that packages [Mergify CLI](https://github.com/Mergifyio/mergify-cli) and exposes an `installSkills` hook for installing Mergify's AI agent skills into downstream projects.
 
-## Use the CLI in a downstream flake
+Both the CLI and the skills are pinned to the same upstream Mergify commit by the flake lock.
+
+## Use in a downstream flake
 
 ```nix
 {
@@ -29,36 +31,23 @@ A small Nix flake that packages [Mergify CLI](https://github.com/Mergifyio/mergi
 }
 ```
 
-The CLI package is pinned through your downstream `flake.lock` like any other flake input.
-
 ## `installSkills`
 
-Calling:
-
-```nix
-shellHook = ''
-  ${mergify-nix.lib.installSkills system}
-'';
-```
-
-runs the packaged `install-mergify-skills` helper whenever the dev shell starts.
-
-The helper:
-
-- fetches the latest `main` branch of `Mergifyio/mergify-cli` at execution time;
-- installs every upstream directory under `skills/` into `.agent/skills/`;
-- updates existing Mergify-managed skills in place;
-- removes Mergify-managed skills that were removed upstream;
-- preserves unrelated project and third-party skills;
-- uses the Git repository root when available, falling back to the current directory.
-
-Set `MERGIFY_SKILLS_DIR` to override the destination:
+The hook delegates skill installation to the standard [skills](https://skills.sh/) CLI recommended by Mergify:
 
 ```bash
-MERGIFY_SKILLS_DIR="$PWD/.custom/skills" install-mergify-skills
+npx skills add Mergifyio/mergify-cli
 ```
 
-You can also run the updater directly:
+Rather than following upstream `main` independently, `mergify-nix` adds the exact commit referenced by the `mergify-cli` flake input:
+
+```text
+Mergifyio/mergify-cli#<locked-revision>
+```
+
+It installs every Mergify skill for the universal agent target, whose project path is `.agents/skills/`. The hook runs from the Git repository root so entering a dev shell from a subdirectory still updates the project-level skills.
+
+You can also run it directly:
 
 ```bash
 nix run github:blogle/mergify-nix#installSkills
@@ -79,10 +68,10 @@ nix run github:blogle/mergify-nix
 
 ## Updating
 
-Downstream projects control the packaged CLI revision through their lockfile:
+Update the flake input in a downstream project:
 
 ```bash
 nix flake update mergify-nix
 ```
 
-The skills hook is intentionally different: it resolves upstream `main` each time it is run so skills stay current without waiting for a flake-input update.
+That advances the packaged Mergify CLI and the revision used by `installSkills` together.
