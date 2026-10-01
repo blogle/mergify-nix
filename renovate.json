@@ -1,0 +1,31 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "enabledManagers": ["nix", "github-actions"],
+  "nix": {
+    "enabled": true
+  },
+  "dependencyDashboard": false,
+  "platformAutomerge": false,
+  "packageRules": [
+    {
+      "description": "Automerge Nix dependency updates after CI passes",
+      "matchManagers": ["nix"],
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "description": "Automerge GitHub Actions updates after CI passes",
+      "matchManagers": ["github-actions"],
+      "automerge": true,
+      "automergeType": "pr"
+    }
+  ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true,
+    "automergeType": "pr",
+    "platformAutomerge": false,
+    "schedule": ["at any time"]
+  }
+}
