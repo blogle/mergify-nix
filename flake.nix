@@ -94,7 +94,7 @@
             text = ''
               set -euo pipefail
 
-              if [[ -n "${MERGIFY_SKILLS_DIR:-}" ]]; then
+              if [[ -n "''${MERGIFY_SKILLS_DIR:-}" ]]; then
                 destination="$MERGIFY_SKILLS_DIR"
               elif project_root="$(git rev-parse --show-toplevel 2>/dev/null)"; then
                 destination="$project_root/.agent/skills"
