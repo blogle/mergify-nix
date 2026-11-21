@@ -3,11 +3,11 @@
     "mergify-cli": {
       "flake": false,
       "locked": {
-        "lastModified": 1790892210,
-        "narHash": "sha256-fABNLDon0DMgXXxgEiLivKCbBb1QStRbgfKw5F/E4pE=",
+        "lastModified": 1795188962,
+        "narHash": "sha256-8SvMJWzVQV878NCZPVn9W5tpcj86BeQH0zpduWZdg4M=",
         "owner": "Mergifyio",
         "repo": "mergify-cli",
-        "rev": "b24e8f2aa67dfceff9401b39450fb7bb91f5573e",
+        "rev": "fbc164249f7f1e3b1777a9abafbb0d3cda025526",
         "type": "github"
       },
       "original": {
@@ -18,11 +18,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1790652569,
-        "narHash": "sha256-641r7xrlSOHYoktL9/aArPIYNgZJ9eM5URzSEOtPJDY=",
+        "lastModified": 1795187554,
+        "narHash": "sha256-5q5/viwCcXSA4S2cSaKdjdYrHhk64qFbjLhCMlJnyeM=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "b6c8664de9b6cc07fe5666a29f91884ba81197c4",
+        "rev": "9996594bd38077de6a018ec17453ba3d99182787",
         "type": "github"
       },
       "original": {
@@ -46,11 +46,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1790882220,
-        "narHash": "sha256-n+rcrZkqos6/HY2iSJsVsJw3Q4mB9XEquYpus97iOi4=",
+        "lastModified": 1795168384,
+        "narHash": "sha256-aQ4Ns5O78Pg6B1i2hNRbI1HpRtnZst/jW34MSOOeaX4=",
         "owner": "oxalica",
         "repo": "rust-overlay",
-        "rev": "dcee1adabb61484343af863501d2e3d91ef51f72",
+        "rev": "a5c999945da3991d7aa3cc2a6075cfd22bd387e9",
         "type": "github"
       },
       "original": {
